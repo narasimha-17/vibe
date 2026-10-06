@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnnaSetu — Annadanam Near You</title>
+<style>
+:root{
+  --bg:#fbf7ef; --surface:#fffdf8; --ink:#2d241d; --muted:#7d7166;
+  --accent:#8b3f2f; --accent2:#c56b3d; --gold:#d9a441; --line:#eadfd1;
+  --green:#3d7b5b; --shadow:0 20px 60px rgba(75,46,27,.10);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--ink)}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.nav{height:74px;padding:0 5vw;display:flex;align-items:center;justify-content:space-between;background:rgba(255,253,248,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.logo{display:flex;align-items:center;gap:11px;font-weight:850;font-size:21px;letter-spacing:-.5px}
+.logo-mark{width:42px;height:42px;border-radius:14px;background:var(--accent);color:#fff;display:grid;place-items:center;box-shadow:0 8px 20px rgba(139,63,47,.25)}
+.logo-mark svg{width:27px;height:27px}
+.navlinks{display:flex;gap:28px;font-size:14px;font-weight:650;color:#695c50}
+.navlinks a{color:inherit;text-decoration:none}.navlinks a:hover{color:var(--accent)}
+.nav-actions{display:flex;gap:10px;align-items:center}
+.btn{border:1px solid var(--line);background:#fffaf2;padding:11px 17px;border-radius:13px;font-weight:750;color:var(--ink)}
+.btn.primary{background:var(--accent);color:white;border-color:var(--accent);box-shadow:0 10px 22px rgba(139,63,47,.18)}
+.btn:hover{transform:translateY(-1px)}
+.hero{padding:58px 5vw 35px;display:grid;grid-template-columns:1fr 1fr;gap:55px;align-items:center;max-width:1450px;margin:auto}
+.eyebrow{color:var(--accent);font-size:12px;font-weight:850;letter-spacing:2px;text-transform:uppercase}
+h1{font-size:clamp(43px,5.5vw,76px);line-height:.98;letter-spacing:-4px;margin:15px 0 20px;max-width:700px}
+.hero p{font-size:18px;line-height:1.7;color:var(--muted);max-width:620px}
+.searchbox{margin-top:27px;background:#fff;border:1px solid var(--line);padding:8px;border-radius:18px;display:flex;box-shadow:var(--shadow);max-width:670px}
+.searchbox input{border:0;outline:0;flex:1;padding:12px 14px;background:transparent;color:var(--ink);min-width:0}
+.searchbox button{border:0;background:var(--accent);color:#fff;padding:13px 19px;border-radius:12px;font-weight:800}
+.quick{display:flex;gap:9px;margin-top:14px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:#fffaf2;padding:8px 12px;border-radius:99px;color:#6e6156;font-size:13px;font-weight:700}
+.visual{height:410px;border-radius:32px;background:linear-gradient(145deg,#e7c99e,#f6e9cd);position:relative;overflow:hidden;box-shadow:var(--shadow);border:1px solid #e6d3b6}
+.sun{position:absolute;width:210px;height:210px;border-radius:50%;background:#f7e8bf;right:12%;top:10%}
+.temple{position:absolute;left:12%;bottom:18%;width:75%;height:45%;background:#9a5a39;border-radius:10px 10px 0 0}
+.temple:before{content:"";position:absolute;left:35%;top:-115px;border-left:95px solid transparent;border-right:95px solid transparent;border-bottom:115px solid #8a4931}
+.temple:after{content:"ॐ";position:absolute;left:calc(50% - 25px);top:-85px;font-size:42px;color:#f8dfaa}
+.step{position:absolute;bottom:11%;left:7%;width:86%;height:11%;background:#d2a56e;border-radius:50%}
+.people{position:absolute;bottom:4%;left:0;right:0;text-align:center;font-size:34px;letter-spacing:16px}
+.map-section{max-width:1450px;margin:0 auto;padding:20px 5vw 65px}
+.toolbar{display:flex;justify-content:space-between;gap:20px;align-items:end;margin:15px 0 18px}
+.section-title h2{font-size:30px;letter-spacing:-1px;margin:5px 0}.section-title p{color:var(--muted);margin:0}
+.filters{display:flex;gap:8px;flex-wrap:wrap}.filter{border:1px solid var(--line);background:white;padding:10px 13px;border-radius:12px;font-weight:700;color:#665a4f}
+.explorer{display:grid;grid-template-columns:390px 1fr;min-height:590px;border:1px solid var(--line);border-radius:28px;overflow:hidden;background:white;box-shadow:var(--shadow)}
+.list{padding:18px;background:#fffdf8;overflow:auto}
+.list-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.count{font-size:13px;color:var(--muted)}
+.card{padding:16px;border:1px solid var(--line);background:#fff;border-radius:18px;margin-bottom:10px;transition:.2s}
+.card:hover,.card.active{border-color:#cda58d;box-shadow:0 9px 24px rgba(85,49,30,.08)}
+.card h3{margin:0 0 7px;font-size:16px}.meta{font-size:12px;color:var(--muted);line-height:1.7}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin:9px 0}.tag{font-size:10px;font-weight:800;padding:5px 7px;border-radius:99px;background:#f7eee4;color:#80523e}.tag.live{background:#e8f4ec;color:var(--green)}
+.map{position:relative;overflow:hidden;background-color:#e8e1d3;background-image:linear-gradient(25deg,transparent 46%,rgba(255,255,255,.75) 47%,rgba(255,255,255,.75) 49%,transparent 50%),linear-gradient(105deg,transparent 46%,rgba(255,255,255,.7) 47%,rgba(255,255,255,.7) 49%,transparent 50%);background-size:170px 150px}
+.map:before{content:"";position:absolute;inset:-20%;background:radial-gradient(ellipse at 30% 60%,transparent 0 23%,rgba(196,184,163,.5) 24% 25%,transparent 26%),radial-gradient(ellipse at 80% 20%,transparent 0 20%,rgba(196,184,163,.5) 21% 22%,transparent 23%)}
+.road{position:absolute;height:17px;background:#f9f6ee;border:2px solid #ddd4c5;transform:rotate(-18deg);width:115%;left:-7%;top:49%}
+.road.two{transform:rotate(34deg);top:27%;left:-5%}.road.three{transform:rotate(3deg);top:76%}
+.pin{position:absolute;transform:translate(-50%,-100%);font-size:31px;filter:drop-shadow(0 5px 5px rgba(0,0,0,.2));transition:.2s}.pin:hover{transform:translate(-50%,-100%) scale(1.18)}
+.pin.main{font-size:38px}.map-label{position:absolute;top:18px;left:20px;background:rgba(255,253,248,.9);padding:10px 13px;border-radius:12px;font-size:12px;font-weight:800;z-index:2}
+.event-popup{position:absolute;right:20px;bottom:20px;width:260px;background:rgba(255,253,248,.96);padding:16px;border-radius:18px;border:1px solid var(--line);box-shadow:0 15px 35px rgba(0,0,0,.12);z-index:4}
+.event-popup h3{margin:0 0 4px}.event-popup p{margin:5px 0;color:var(--muted);font-size:12px}.event-popup .btn{width:100%;margin-top:8px}
+.stats{max-width:1450px;margin:0 auto 70px;padding:0 5vw;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:22px;padding:24px}.stat b{font-size:34px}.stat span{display:block;color:var(--muted);font-size:13px;margin-top:4px}
+footer{padding:38px 5vw;background:#30251f;color:#e9ded2;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.footer-logo{font-weight:850}.footer-note{color:#aa9d92;font-size:13px}
+.modal{position:fixed;inset:0;background:rgba(35,24,18,.55);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}.modal.show{display:flex}
+.modal-box{background:#fffdf8;border:1px solid var(--line);border-radius:25px;width:min(650px,100%);padding:25px;box-shadow:0 30px 90px rgba(0,0,0,.25)}
+.modal-head{display:flex;justify-content:space-between;align-items:center}.close{border:0;background:#f4eadf;border-radius:10px;width:38px;height:38px;font-size:20px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:18px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:800;color:#66594e}.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:12px;padding:11px 12px;background:#fff;outline:none}.field textarea{min-height:80px;resize:vertical}.form-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:8px;margin-top:5px}
+.toast{position:fixed;right:20px;bottom:20px;background:#30251f;color:#fff;padding:14px 17px;border-radius:14px;box-shadow:var(--shadow);display:none;z-index:70}.toast.show{display:block}
+@media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:40px}.visual{height:300px}.explorer{grid-template-columns:1fr}.map{height:470px}.navlinks{display:none}.stats{grid-template-columns:1fr}.toolbar{align-items:start;flex-direction:column}}
+@media(max-width:560px){.nav{padding:0 18px}.nav-actions .login{display:none}.hero,.map-section,.stats{padding-left:18px;padding-right:18px}h1{letter-spacing:-2.5px}.searchbox button{padding:12px}.form{grid-template-columns:1fr}.field.full,.form-actions{grid-column:auto}.event-popup{left:15px;right:15px;width:auto}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="logo"><div class="logo-mark" aria-label="AnnaSetu logo"><svg viewBox="0 0 48 48" role="img"><path d="M24 5c-5 7-15 14-15 23 0 8.2 6.7 15 15 15s15-6.8 15-15C39 19 29 12 24 5Z" fill="none" stroke="currentColor" stroke-width="3"/><path d="M17 27c4-5 10-5 14 0M17 33c4-3 10-3 14 0" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M24 16v15" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></div> AnnaSetu</div>
+  <div class="navlinks"><a href="#discover">Discover</a><a href="#how">How it works</a><a href="#serve">Serve</a></div>
+  <div class="nav-actions"><button class="btn login" onclick="toast('Login flow coming next — demo mode active.')">Login</button><button class="btn primary" onclick="openModal()">＋ Post Annadanam</button></div>
+</nav>
+
+<main>
+<section class="hero">
+  <div>
+    <div class="eyebrow">Community • Seva • Food</div>
+    <h1>Food is a blessing.<br><span style="color:var(--accent)">Let no one miss it.</span></h1>
+    <p>Discover Annadanam happening around you. Find a meal, share a seva, and help connect food with people who need it.</p>
+    <div class="searchbox">
+      <input id="search" placeholder="Search area, temple, city or Annadanam..." oninput="filterCards()">
+      <button onclick="useLocation()">⌖ Near Me</button>
+    </div>
+    <div class="quick">
+      <button class="chip" onclick="quickSearch('Today')">Today</button>
+      <button class="chip" onclick="quickSearch('Tomorrow')">Tomorrow</button>
+      <button class="chip" onclick="quickSearch('Temple')">Temples</button>
+      <button class="chip" onclick="quickSearch('Free Food')">Free Food</button>
+    </div>
+  </div>
+  <div class="visual" aria-label="Annadanam illustration">
+    <div class="sun"></div><div class="temple"></div><div class="step"></div>
+    <div class="people">🧑‍🍳 🧑‍🤝‍🧑 🍚 🧑‍🤝‍🧑</div>
+  </div>
+</section>
+
+<section class="map-section" id="discover">
+  <div class="toolbar">
+    <div class="section-title"><div class="eyebrow">Explore</div><h2>Annadanam near you</h2><p>Find food seva on the map or browse the list.</p></div>
+    <div class="filters">
+      <button class="filter" onclick="filterBy('Today')">📅 Today</button>
+      <button class="filter" onclick="filterBy('Live')">🟢 Serving now</button>
+      <button class="filter" onclick="filterBy('5 km')">📍 Within 5 km</button>
+    </div>
+  </div>
+
+  <div class="explorer">
+    <aside class="list">
+      <div class="list-head"><strong id="listTitle">Nearby Annadanam</strong><span class="count" id="count">4 events</span></div>
+
+      <div class="card active" data-text="Sri Rama Seva Temple Today Live Free Food Temple Rajahmundry" onclick="selectEvent('Sri Rama Seva Annadanam','1.2 km away','Today • 12:00 PM – 2:00 PM')">
+        <h3>🍛 Sri Rama Seva Annadanam</h3><div class="meta">📍 1.2 km away · Today · 12:00 PM – 2:00 PM</div>
+        <div class="tags"><span class="tag live">● Serving now</span><span class="tag">Temple</span><span class="tag">Free Food</span></div>
+      </div>
+
+      <div class="card" data-text="Sri Durga Temple Annadanam Tomorrow Temple Vegetarian" onclick="selectEvent('Sri Durga Temple Annadanam','2.4 km away','Tomorrow • 11:30 AM – 2:00 PM')">
+        <h3>🪔 Sri Durga Temple Annadanam</h3><div class="meta">📍 2.4 km away · Tomorrow · 11:30 AM – 2:00 PM</div>
+        <div class="tags"><span class="tag">Temple</span><span class="tag">Vegetarian</span></div>
+      </div>
+
+      <div class="card" data-text="Community Kitchen Today Free Food Families" onclick="selectEvent('Community Kitchen Meal Seva','3.1 km away','Today • 1:00 PM – 3:00 PM')">
+        <h3>🥘 Community Kitchen Meal Seva</h3><div class="meta">📍 3.1 km away · Today · 1:00 PM – 3:00 PM</div>
+        <div class="tags"><span class="tag">Community</span><span class="tag">Free Food</span></div>
+      </div>
+
+      <div class="card" data-text="Sai Trust Food Distribution Tomorrow Trust" onclick="selectEvent('Sai Trust Food Distribution','4.7 km away','Tomorrow • 7:30 PM – 9:00 PM')">
+        <h3>🍚 Sai Trust Food Distribution</h3><div class="meta">📍 4.7 km away · Tomorrow · 7:30 PM – 9:00 PM</div>
+        <div class="tags"><span class="tag">Trust</span><span class="tag">Dinner</span></div>
+      </div>
+    </aside>
+
+    <div class="map" id="map">
+      <div class="map-label">📍 Rajahmundry · 4 Annadanam events</div>
+      <div class="road"></div><div class="road two"></div><div class="road three"></div>
+      <div class="pin main" style="left:37%;top:52%" onclick="selectEvent('Sri Rama Seva Annadanam','1.2 km away','Today • 12:00 PM – 2:00 PM')">🍛</div>
+      <div class="pin" style="left:68%;top:34%" onclick="selectEvent('Sri Durga Temple Annadanam','2.4 km away','Tomorrow • 11:30 AM – 2:00 PM')">🍛</div>
+      <div class="pin" style="left:55%;top:72%" onclick="selectEvent('Community Kitchen Meal Seva','3.1 km away','Today • 1:00 PM – 3:00 PM')">🍛</div>
+      <div class="pin" style="left:82%;top:66%" onclick="selectEvent('Sai Trust Food Distribution','4.7 km away','Tomorrow • 7:30 PM – 9:00 PM')">🍛</div>
+
+      <div class="event-popup" id="popup">
+        <h3>🍛 Sri Rama Seva Annadanam</h3>
+        <p>📍 1.2 km away</p><p>🕐 Today · 12:00 PM – 2:00 PM</p>
+        <button class="btn primary" onclick="directions()">🧭 Get Directions</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="stats" id="serve">
+  <div class="stat"><b>128+</b><span>Annadanam events shared</span></div>
+  <div class="stat"><b>42</b><span>Active organizers & trusts</span></div>
+  <div class="stat"><b>2.8K+</b><span>People connected with seva</span></div>
+</section>
+</main>
+
+<footer id="how">
+  <div><div class="footer-logo"><span style="display:inline-flex;vertical-align:middle;margin-right:7px;width:28px;height:28px;background:var(--accent);border-radius:9px;align-items:center;justify-content:center"><svg viewBox="0 0 48 48" width="19" height="19" style="color:white"><path d="M24 5c-5 7-15 14-15 23 0 8.2 6.7 15 15 15s15-6.8 15-15C39 19 29 12 24 5Z" fill="none" stroke="currentColor" stroke-width="3"/><path d="M17 27c4-5 10-5 14 0M17 33c4-3 10-3 14 0" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M24 16v15" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span>AnnaSetu</div><div class="footer-note">Discover. Serve. Share.</div></div>
+  <div class="footer-note">A community-powered Annadanam discovery concept.</div>
+</footer>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="modal-head"><div><div class="eyebrow">Share your seva</div><h2 style="margin:5px 0 0">Post Annadanam</h2></div><button class="close" onclick="closeModal()">×</button></div>
+    <form class="form" onsubmit="publishEvent(event)">
+      <div class="field full"><label>Annadanam / Event Name</label><input required placeholder="e.g. Sri Rama Seva Annadanam"></div>
+      <div class="field"><label>Date</label><input type="date" required></div>
+      <div class="field"><label>Food Type</label><select><option>Vegetarian</option><option>Prasadam</option><option>Mixed</option></select></div>
+      <div class="field"><label>Start Time</label><input type="time" required></div>
+      <div class="field"><label>End Time</label><input type="time" required></div>
+      <div class="field full"><label>Location</label><input required placeholder="Search address / temple / landmark"></div>
+      <div class="field"><label>Expected People</label><input type="number" placeholder="500"></div>
+      <div class="field"><label>Contact</label><input placeholder="+91 ..."></div>
+      <div class="field full"><label>Description</label><textarea placeholder="Tell people what is being served..."></textarea></div>
+      <div class="form-actions"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button class="btn primary">Publish Annadanam</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function openModal(){document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
+function publishEvent(e){e.preventDefault();closeModal();toast('✓ Annadanam published successfully in demo mode!')}
+function directions(){toast('Opening directions… (map integration ready for your API/provider)')}
+function useLocation(){toast('📍 Location detected — showing nearby Annadanam')}
+function quickSearch(q){document.getElementById('search').value=q;filterCards()}
+function filterBy(q){document.getElementById('search').value=q;filterCards()}
+function filterCards(){
+ const q=document.getElementById('search').value.toLowerCase().trim();
+ let visible=0;
+ document.querySelectorAll('.card').forEach(c=>{
+   const show=!q || c.dataset.text.toLowerCase().includes(q);
+   c.style.display=show?'block':'none'; if(show) visible++;
+ });
+ document.getElementById('count').textContent=visible+' event'+(visible===1?'':'s');
+}
+function selectEvent(name,distance,time){
+ document.getElementById('popup').innerHTML='<h3>🍛 '+name+'</h3><p>📍 '+distance+'</p><p>🕐 '+time+'</p><button class="btn primary" onclick="directions()">🧭 Get Directions</button>';
+ document.querySelectorAll('.card').forEach(c=>c.classList.remove('active'));
+ [...document.querySelectorAll('.card')].find(c=>c.innerText.includes(name.split(' ')[0]))?.classList.add('active');
+}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+</script>
+</body>
+</html>

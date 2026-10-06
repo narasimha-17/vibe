@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBIT — Orchestrated Reasoning & Bot Integration Toolkit</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root {
+  /* Color Palette - Modern SaaS Dark Theme */
+  --bg-base: #050509;
+  --bg-panel: #0d1017;
+  --bg-surface: #151923;
+  --bg-hover: #1e2433;
+  --border-light: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.12);
+  --text-main: #f8fafc;
+  --text-muted: #8b949e;
+  --text-disabled: #484f58;
+  
+  /* Brand Gradients */
+  --accent-base: #6366f1;
+  --accent-light: #8b5cf6;
+  --accent-cyan: #06b6d4;
+  --gradient-primary: linear-gradient(135deg, var(--accent-light), var(--accent-base));
+  --gradient-subtle: linear-gradient(180deg, rgba(139, 92, 246, 0.08) 0%, rgba(0,0,0,0) 100%);
+  
+  /* Status Colors */
+  --success: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.1);
+  --warning: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.1);
+  --danger: #f43f5e;
+  --danger-bg: rgba(244, 63, 94, 0.1);
+  --info: #3b82f6;
+
+  /* Shadows & FX */
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.4);
+  --shadow-md: 0 8px 16px rgba(0,0,0,0.4);
+  --shadow-glow: 0 0 24px rgba(139, 92, 246, 0.25);
+  --glass: rgba(13, 16, 23, 0.7);
+  
+  /* UI Elements */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { box-sizing: border-box; }
+body { 
+  margin: 0; 
+  background-color: var(--bg-base);
+  background-image: radial-gradient(circle at 60% -20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                    radial-gradient(circle at 100% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 40%);
+  color: var(--text-main); 
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+  overflow: hidden; 
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select, textarea { font: inherit; outline: none; }
+button { cursor: pointer; transition: var(--transition); }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg-hover); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+/* Layout Grid */
+.app { display: grid; grid-template-columns: 240px 1fr; grid-template-rows: 64px 1fr; height: 100vh; }
+
+/* Top Navigation */
+.top { 
+  grid-column: 1 / -1; 
+  border-bottom: 1px solid var(--border-light); 
+  display: flex; align-items: center; justify-content: space-between; 
+  padding: 0 24px; 
+  background: var(--glass); 
+  backdrop-filter: blur(12px); 
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 10; 
+}
+.brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: -0.5px; font-size: 15px; }
+.logo { 
+  width: 32px; height: 32px; border-radius: var(--radius-md); 
+  background: var(--gradient-primary); 
+  display: grid; place-items: center; font-weight: 800; font-size: 16px;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+}
+.top-actions { display: flex; align-items: center; gap: 12px; }
+.pill { 
+  border: 1px solid var(--border-light); background: var(--bg-surface); 
+  color: var(--text-muted); border-radius: var(--radius-full); 
+  padding: 6px 14px; font-size: 13px; display: flex; align-items: center; gap: 8px; 
+}
+.pill:hover { background: var(--bg-hover); color: var(--text-main); border-color: var(--border-strong); }
+kbd { background: var(--bg-panel); border: 1px solid var(--border-strong); border-radius: 4px; padding: 2px 6px; font-family: monospace; font-size: 11px; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-hover); border: 1px solid var(--border-strong); display: grid; place-items: center; font-size: 13px; font-weight: 600; }
+
+/* Sidebar */
+.side { border-right: 1px solid var(--border-light); background: var(--bg-panel); padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; z-index: 5;}
+.side-section { margin: 16px 12px 6px; color: var(--text-disabled); text-transform: uppercase; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+.nav { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius-md); color: var(--text-muted); font-size: 14px; font-weight: 500; }
+.nav:hover { background: var(--bg-surface); color: var(--text-main); }
+.nav.active { background: rgba(139, 92, 246, 0.1); color: var(--accent-light); }
+.nav svg { width: 18px; height: 18px; stroke-width: 2.2px; }
+
+/* Main Area */
+.main { overflow: auto; padding: 32px; position: relative; }
+.view { display: none; animation: fadeIn 0.3s ease-out; }
+.view.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Headers */
+.head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
+.eyebrow { font-size: 12px; font-weight: 600; color: var(--accent-light); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;}
+.title { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin: 0 0 6px 0; }
+.sub { color: var(--text-muted); font-size: 15px; line-height: 1.5; }
+
+/* Buttons */
+.btn { 
+  border: 1px solid var(--border-strong); background: var(--bg-surface); 
+  color: var(--text-main); border-radius: var(--radius-md); 
+  padding: 8px 16px; font-size: 14px; font-weight: 500; 
+  display: flex; align-items: center; gap: 8px; justify-content: center;
+}
+.btn:hover { background: var(--bg-hover); border-color: rgba(255,255,255,0.2); }
+.btn.primary { 
+  background: var(--gradient-primary); border: none; 
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), 0 2px 10px rgba(99, 102, 241, 0.3); 
+}
+.btn.primary:hover { filter: brightness(1.1); box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), 0 4px 15px rgba(99, 102, 241, 0.4); transform: translateY(-1px); }
+.btn svg { width: 16px; height: 16px; }
+
+/* Grids & Cards */
+.grid { display: grid; gap: 16px; }
+.stats { grid-template-columns: repeat(4, 1fr); }
+.cards3 { grid-template-columns: repeat(3, 1fr); }
+.layout2 { grid-template-columns: 1.6fr 1fr; }
+
+.card { 
+  background: var(--bg-panel); border: 1px solid var(--border-light); 
+  border-radius: var(--radius-lg); padding: 20px; 
+  box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+  transition: var(--transition);
+}
+.card::before {
+  content: ''; position: absolute; inset: 0; background: var(--gradient-subtle); opacity: 0; transition: var(--transition); pointer-events: none;
+}
+.card:hover { border-color: var(--border-strong); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.card:hover::before { opacity: 1; }
+
+/* Stats */
+.stat-num { font-size: 32px; font-weight: 800; margin: 12px 0 8px; letter-spacing: -1px; }
+.delta { font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: var(--radius-full); }
+.delta.up { background: var(--success-bg); color: var(--success); }
+.delta.down { background: var(--danger-bg); color: var(--danger); }
+
+/* Agent Cards */
+.agent { display: flex; flex-direction: column; height: 100%; min-height: 200px; }
+.agent-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.agent-icon { 
+  width: 48px; height: 48px; border-radius: var(--radius-md); 
+  display: grid; place-items: center; 
+  background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); 
+  color: var(--accent-light); 
+}
+.agent-icon svg { width: 24px; height: 24px; stroke-width: 1.5px; }
+.tag { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid var(--border-strong); border-radius: var(--radius-full); padding: 4px 10px; background: var(--bg-surface); color: var(--text-muted); }
+.agent h3 { margin: 0 0 8px 0; font-size: 16px; font-weight: 600; }
+.agent p { margin: 0; color: var(--text-muted); font-size: 14px; line-height: 1.6; flex-grow: 1; }
+.agent-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-light); color: var(--text-disabled); font-size: 12px; font-weight: 500;}
+
+/* Search */
+.search-wrapper { position: relative; display: flex; align-items: center; }
+.search-wrapper svg { position: absolute; left: 12px; width: 16px; height: 16px; color: var(--text-muted); }
+.search { width: 280px; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md); padding: 10px 12px 10px 36px; color: var(--text-main); transition: var(--transition); font-size: 14px; }
+.search:focus { border-color: var(--accent-light); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); }
+
+/* Node Builder */
+.builder { display: grid; grid-template-columns: 260px 1fr 300px; height: calc(100vh - 160px); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; background: var(--bg-base); box-shadow: var(--shadow-md); }
+.palette, .inspector { background: var(--bg-panel); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;}
+.palette { border-right: 1px solid var(--border-light); }
+.inspector { border-left: 1px solid var(--border-light); }
+.section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-disabled); letter-spacing: 0.5px; margin: 4px 0; display: flex; align-items: center; gap: 8px;}
+.node-item { 
+  padding: 12px 16px; border: 1px solid var(--border-light); border-radius: var(--radius-md); 
+  background: var(--bg-surface); color: var(--text-muted); font-size: 13px; font-weight: 500;
+  cursor: grab; display: flex; align-items: center; gap: 10px; transition: var(--transition);
+}
+.node-item svg { width: 16px; height: 16px; color: var(--accent-light); }
+.node-item:hover { border-color: var(--accent-light); background: rgba(139, 92, 246, 0.05); color: var(--text-main); transform: translateX(2px); }
+
+/* Canvas */
+.canvas { position: relative; overflow: hidden; background-color: var(--bg-base); background-image: radial-gradient(var(--border-strong) 1px, transparent 1px); background-size: 24px 24px; }
+.canvas-toolbar { position: absolute; top: 16px; left: 16px; right: 16px; display: flex; justify-content: space-between; z-index: 5; }
+.toolbar-group { display: flex; background: var(--glass); backdrop-filter: blur(8px); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 4px; gap: 2px;}
+.mini { background: transparent; border: none; color: var(--text-muted); padding: 6px 10px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.mini:hover { background: var(--bg-hover); color: var(--text-main); }
+
+/* Nodes */
+.node { 
+  position: absolute; width: 220px; background: rgba(18, 22, 31, 0.85); backdrop-filter: blur(12px);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-md); 
+  box-shadow: var(--shadow-sm); transition: transform 0.1s; cursor: pointer;
+}
+.node.selected { 
+  border-color: var(--accent-light); 
+  box-shadow: 0 0 0 1px var(--accent-light), var(--shadow-glow); 
+}
+.node-head { padding: 12px 16px; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; }
+.node-head svg { width: 16px; height: 16px; color: var(--accent-cyan); }
+.node-body { padding: 12px 16px; color: var(--text-muted); font-size: 12px; line-height: 1.5; }
+.port { width: 12px; height: 12px; border-radius: 50%; background: var(--bg-surface); border: 2px solid var(--accent-light); position: absolute; z-index: 2; }
+.port:hover { transform: scale(1.2); background: var(--accent-light); }
+.port.in { left: -6px; top: 50%; transform: translateY(-50%); }
+.port.out { right: -6px; top: 50%; transform: translateY(-50%); }
+.edge { position: absolute; height: 2px; background: var(--gradient-primary); transform-origin: left center; opacity: 0.6; box-shadow: 0 0 8px rgba(99, 102, 241, 0.5); border-radius: 2px;}
+
+/* Forms */
+.form label { display: block; color: var(--text-muted); font-size: 12px; font-weight: 500; margin: 16px 0 8px; }
+.form input, .form select, .form textarea { 
+  width: 100%; background: var(--bg-base); border: 1px solid var(--border-strong); 
+  border-radius: var(--radius-md); color: var(--text-main); padding: 10px 12px; 
+  font-size: 13px; transition: var(--transition);
+}
+.form input:focus, .form select:focus, .form textarea:focus { border-color: var(--accent-light); box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15); }
+.form textarea { height: 100px; resize: vertical; line-height: 1.5; }
+.toggle { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-light); padding: 16px 0; color: var(--text-main); font-size: 13px; font-weight: 500; margin-top: 16px;}
+.switch { width: 40px; height: 22px; border-radius: var(--radius-full); background: var(--bg-hover); position: relative; transition: var(--transition); cursor: pointer; border: 1px solid var(--border-strong);}
+.switch.on { background: var(--accent-base); border-color: var(--accent-light); }
+.switch:after { content: ""; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: white; top: 2px; left: 2px; transition: var(--transition); box-shadow: var(--shadow-sm);}
+.switch.on:after { left: 20px; }
+
+/* Tables */
+.table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+.table th, .table td { padding: 16px; border-bottom: 1px solid var(--border-light); text-align: left; }
+.table th { color: var(--text-disabled); font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+.table tr:last-child td { border-bottom: none; }
+.table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* Status Badges */
+.status { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--radius-full); font-size: 11px; font-weight: 600; }
+.status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+.live { background: var(--success-bg); color: var(--success); }
+.live::before { background: var(--success); box-shadow: 0 0 8px var(--success); }
+.draft { background: var(--warning-bg); color: var(--warning); }
+.draft::before { background: var(--warning); }
+
+/* Logs */
+.log { height: 380px; overflow: auto; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; color: var(--text-muted); background: var(--bg-base); border: 1px solid var(--border-strong); border-radius: var(--radius-md); padding: 16px; line-height: 1.6; }
+.log div { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed var(--border-light); display: flex; gap: 12px; }
+.log div:last-child { border: none; }
+.text-green { color: var(--success); }
+.text-purple { color: var(--accent-light); }
+.text-blue { color: var(--info); }
+.text-red { color: var(--danger); }
+
+/* Modals & Toasts */
+.modal { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); display: none; place-items: center; z-index: 50; opacity: 0; transition: opacity 0.2s; }
+.modal.open { display: grid; opacity: 1; }
+.modalbox { width: min(500px, 92vw); background: var(--bg-panel); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-md), 0 20px 40px rgba(0,0,0,0.5); transform: scale(0.95); transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+.modal.open .modalbox { transform: scale(1); }
+.toast { position: fixed; right: 32px; bottom: 32px; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md); padding: 16px 20px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow-md); z-index: 100; transform: translateY(100px); opacity: 0; transition: var(--transition); color: var(--text-main); }
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast svg { color: var(--success); width: 18px; height: 18px; }
+
+@media(max-width: 1024px) {
+  .app { grid-template-columns: 72px 1fr; }
+  .side { padding: 20px 8px; align-items: center; }
+  .nav span:not(.icon-wrapper), .side-section { display: none; }
+  .nav { padding: 12px; justify-content: center; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .cards3 { grid-template-columns: 1fr; }
+  .builder { grid-template-columns: 200px 1fr; }
+  .inspector { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+  <div class="brand"><div class="logo"><i data-lucide="orbit" size="18"></i></div><div>ORBIT <small style="display:block;color:var(--text-disabled);font-size:9px;letter-spacing:1px;font-weight:700">AGENT PLATFORM</small></div></div>
+  <div class="top-actions">
+    <button class="pill" onclick="toast('Command palette ready')"><kbd>⌘</kbd> <kbd>K</kbd> Search</button>
+    <button class="pill" style="padding: 6px 10px;" onclick="toast('No new notifications')"><i data-lucide="bell" size="16"></i></button>
+    <div class="avatar">N</div>
+  </div>
+</header>
+
+<aside class="side">
+  <div class="side-section">Workspace</div>
+  <div class="nav active" data-view="home" title="Overview"><span class="icon-wrapper"><i data-lucide="layout-dashboard"></i></span><span>Overview</span></div>
+  <div class="nav" data-view="agents" title="Agents"><span class="icon-wrapper"><i data-lucide="bot"></i></span><span>Agents</span></div>
+  <div class="nav" data-view="builder" title="Agent Builder"><span class="icon-wrapper"><i data-lucide="workflow"></i></span><span>Agent Builder</span></div>
+  <div class="nav" data-view="knowledge" title="Knowledge"><span class="icon-wrapper"><i data-lucide="database"></i></span><span>Knowledge</span></div>
+  <div class="nav" data-view="connectors" title="Connectors"><span class="icon-wrapper"><i data-lucide="plug-2"></i></span><span>Connectors</span></div>
+  <div class="nav" data-view="workflows" title="Workflows"><span class="icon-wrapper"><i data-lucide="zap"></i></span><span>Workflows</span></div>
+  <div class="side-section">Operate</div>
+  <div class="nav" data-view="runs" title="Runs"><span class="icon-wrapper"><i data-lucide="play-circle"></i></span><span>Runs</span></div>
+  <div class="nav" data-view="evals" title="Evaluations"><span class="icon-wrapper"><i data-lucide="check-circle-2"></i></span><span>Evaluations</span></div>
+  <div class="nav" data-view="settings" title="Settings"><span class="icon-wrapper"><i data-lucide="settings"></i></span><span>Settings</span></div>
+</aside>
+
+<main class="main">
+<section id="home" class="view active">
+  <div class="head">
+    <div>
+      <div class="eyebrow"><i data-lucide="compass" size="14"></i> Workspace / Overview</div>
+      <div class="title">Build agents that do the work.</div>
+      <div class="sub">Design, connect, orchestrate and deploy intelligent workflows from one canvas.</div>
+    </div>
+    <button class="btn primary" onclick="showView('builder')"><i data-lucide="plus"></i> Create agent</button>
+  </div>
+  
+  <div class="grid stats">
+    <div class="card"><div class="eyebrow">Active agents</div><div class="stat-num">12</div><div class="delta up"><i data-lucide="trending-up" size="12"></i> 3 this month</div></div>
+    <div class="card"><div class="eyebrow">Tasks completed</div><div class="stat-num">8,492</div><div class="delta up"><i data-lucide="trending-up" size="12"></i> 18.4%</div></div>
+    <div class="card"><div class="eyebrow">Success rate</div><div class="stat-num">96.8%</div><div class="delta up"><i data-lucide="trending-up" size="12"></i> 1.9%</div></div>
+    <div class="card"><div class="eyebrow">Avg. latency</div><div class="stat-num">4.2s</div><div class="delta down"><i data-lucide="trending-down" size="12"></i> -0.8s</div></div>
+  </div>
+  
+  <div class="head" style="margin: 40px 0 20px">
+    <div><b>Featured agents</b><div class="sub" style="font-size:13px; margin-top:4px;">Ready-to-use autonomous workers</div></div>
+    <button class="btn" onclick="showView('agents')">View all <i data-lucide="arrow-right" size="14"></i></button>
+  </div>
+  
+  <div class="grid cards3">
+    <div class="card agent">
+      <div class="agent-top"><div class="agent-icon"><i data-lucide="search-check"></i></div><span class="tag">Production</span></div>
+      <h3>Research Analyst</h3>
+      <p>Searches sources, synthesizes evidence and produces structured research briefs.</p>
+      <div class="agent-footer"><span><i data-lucide="wrench" size="12" style="margin-right:4px; vertical-align:middle;"></i> 4 tools</span><span style="color:var(--success)">● 99.1% success</span></div>
+    </div>
+    <div class="card agent">
+      <div class="agent-top"><div class="agent-icon"><i data-lucide="shield-check"></i></div><span class="tag">Production</span></div>
+      <h3>Code Auditor</h3>
+      <p>Analyzes repositories for security, quality, architecture and optimization opportunities.</p>
+      <div class="agent-footer"><span><i data-lucide="wrench" size="12" style="margin-right:4px; vertical-align:middle;"></i> 7 tools</span><span style="color:var(--success)">● 97.4% success</span></div>
+    </div>
+    <div class="card agent">
+      <div class="agent-top"><div class="agent-icon" style="color:var(--warning); border-color:rgba(245,158,11,0.2); background:rgba(245,158,11,0.1)"><i data-lucide="bar-chart-2"></i></div><span class="tag" style="color:var(--warning)">Draft</span></div>
+      <h3>Data Analyst</h3>
+      <p>Queries databases, interprets metrics and turns results into interactive reports.</p>
+      <div class="agent-footer"><span><i data-lucide="wrench" size="12" style="margin-right:4px; vertical-align:middle;"></i> 5 tools</span><span style="color:var(--success)">● 94.8% success</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="agents" class="view">
+ <div class="head">
+    <div>
+      <div class="eyebrow"><i data-lucide="bot" size="14"></i> Workspace / Agents</div>
+      <div class="title">Agent library</div>
+      <div class="sub">Your autonomous workforce, in one place.</div>
+    </div>
+    <div style="display:flex; gap:12px;">
+      <div class="search-wrapper">
+        <i data-lucide="search"></i>
+        <input class="search" id="agentSearch" placeholder="Search agents..." oninput="filterAgents()">
+      </div>
+      <button class="btn primary" onclick="showView('builder')"><i data-lucide="plus"></i> New agent</button>
+    </div>
+  </div>
+  
+ <div class="grid cards3" id="agentGrid">
+  <div class="card agent searchable"><div class="agent-top"><div class="agent-icon"><i data-lucide="search-check"></i></div><span class="tag">Research</span></div><h3>Research Analyst</h3><p>Multi-source research and synthesis agent.</p><div class="agent-footer"><span>4 tools</span><button class="btn" onclick="openAgent('Research Analyst')">Open</button></div></div>
+  <div class="card agent searchable"><div class="agent-top"><div class="agent-icon"><i data-lucide="shield-check"></i></div><span class="tag">Developer</span></div><h3>Code Auditor</h3><p>Security, quality and architecture analysis.</p><div class="agent-footer"><span>7 tools</span><button class="btn" onclick="openAgent('Code Auditor')">Open</button></div></div>
+  <div class="card agent searchable"><div class="agent-top"><div class="agent-icon"><i data-lucide="bar-chart-2"></i></div><span class="tag">Data</span></div><h3>Data Analyst</h3><p>SQL analysis and automated visualization.</p><div class="agent-footer"><span>5 tools</span><button class="btn" onclick="openAgent('Data Analyst')">Open</button></div></div>
+  <div class="card agent searchable"><div class="agent-top"><div class="agent-icon"><i data-lucide="headphones"></i></div><span class="tag">Operations</span></div><h3>Support Agent</h3><p>Handles support tickets and escalations.</p><div class="agent-footer"><span>6 tools</span><button class="btn" onclick="openAgent('Support Agent')">Open</button></div></div>
+  <div class="card agent searchable"><div class="agent-top"><div class="agent-icon"><i data-lucide="pie-chart"></i></div><span class="tag">Finance</span></div><h3>Finance Copilot</h3><p>Explains reports and performs controlled analysis.</p><div class="agent-footer"><span>3 tools</span><button class="btn" onclick="openAgent('Finance Copilot')">Open</button></div></div>
+  <div class="card agent searchable"><div class="agent-top"><div class="agent-icon"><i data-lucide="users"></i></div><span class="tag">HR</span></div><h3>People Assistant</h3><p>Answers policy questions from approved knowledge.</p><div class="agent-footer"><span>2 tools</span><button class="btn" onclick="openAgent('People Assistant')">Open</button></div></div>
+ </div>
+</section>
+
+<section id="builder" class="view">
+ <div class="head">
+    <div>
+      <div class="eyebrow"><i data-lucide="workflow" size="14"></i> Studio / Agent Builder</div>
+      <div class="title">Code Auditor</div>
+      <div class="sub">Visual orchestration canvas</div>
+    </div>
+    <div style="display:flex; gap:12px;">
+      <button class="btn" onclick="toast('Agent saved as draft')"><i data-lucide="save"></i> Save</button> 
+      <button class="btn primary" onclick="deployAgent()"><i data-lucide="rocket"></i> Deploy agent</button>
+    </div>
+  </div>
+  
+ <div class="builder">
+  <div class="palette">
+    <div class="section-title"><i data-lucide="component" size="14"></i> Nodes</div>
+    <div class="node-item" onclick="addNode('Input', 'message-square')"><i data-lucide="message-square"></i> User Input</div>
+    <div class="node-item" onclick="addNode('Planner', 'brain')"><i data-lucide="brain"></i> Planner Agent</div>
+    <div class="node-item" onclick="addNode('LLM', 'cpu')"><i data-lucide="cpu"></i> LLM Agent</div>
+    <div class="node-item" onclick="addNode('Tool', 'wrench')"><i data-lucide="wrench"></i> Tool</div>
+    <div class="node-item" onclick="addNode('Knowledge', 'database')"><i data-lucide="database"></i> Knowledge</div>
+    <div class="node-item" onclick="addNode('Condition', 'git-branch')"><i data-lucide="git-branch"></i> Condition</div>
+    <div class="node-item" onclick="addNode('Output', 'log-out')"><i data-lucide="log-out"></i> Output</div>
+    
+    <div class="section-title" style="margin-top:auto"><i data-lucide="layout" size="14"></i> Actions</div>
+    <button class="btn" style="width:100%" onclick="autoLayout()">Auto layout</button>
+  </div>
+  
+  <div class="canvas" id="canvas">
+   <div class="canvas-toolbar">
+      <div class="toolbar-group">
+        <button class="mini" onclick="zoom(-1)"><i data-lucide="minus" size="14"></i></button>
+        <button class="mini" id="zoom" style="width:50px; justify-content:center;">100%</button>
+        <button class="mini" onclick="zoom(1)"><i data-lucide="plus" size="14"></i></button>
+      </div>
+      <div class="toolbar-group">
+        <button class="mini" onclick="runBuilder()" style="color:var(--success)"><i data-lucide="play" size="14"></i> Run test</button>
+      </div>
+    </div>
+    
+   <div class="node selected" style="left:50px;top:180px" onclick="selectNode(this,'Input', 'message-square')">
+      <span class="port out"></span>
+      <div class="node-head"><i data-lucide="message-square"></i> User Request</div>
+      <div class="node-body">Analyze my GitHub repository</div>
+   </div>
+   <div class="node" style="left:330px;top:180px" onclick="selectNode(this,'Planner Agent', 'brain')">
+      <span class="port in"></span><span class="port out"></span>
+      <div class="node-head"><i data-lucide="brain"></i> Planner Agent</div>
+      <div class="node-body">Break task into security, architecture and quality checks.</div>
+   </div>
+   <div class="node" style="left:610px;top:80px" onclick="selectNode(this,'Security Agent', 'shield-check')">
+      <span class="port in"></span><span class="port out"></span>
+      <div class="node-head"><i data-lucide="shield-check"></i> Security Agent</div>
+      <div class="node-body">OWASP + dependency + secrets analysis.</div>
+   </div>
+   <div class="node" style="left:610px;top:280px" onclick="selectNode(this,'Architecture Agent', 'box')">
+      <span class="port in"></span><span class="port out"></span>
+      <div class="node-head"><i data-lucide="box"></i> Architecture Agent</div>
+      <div class="node-body">Patterns, coupling and scalability.</div>
+   </div>
+   <div class="node" style="left:890px;top:180px" onclick="selectNode(this,'Report Agent', 'file-text')">
+      <span class="port in"></span><span class="port out"></span>
+      <div class="node-head"><i data-lucide="file-text"></i> Report Agent</div>
+      <div class="node-body">Synthesize findings and recommendations.</div>
+   </div>
+   
+   <!-- Improved connection lines using simple absolute divs for structural mockup -->
+   <div class="edge" style="left:270px;top:230px;width:60px;"></div>
+   <div class="edge" style="left:550px;top:230px;width:75px;transform:rotate(-36deg)"></div>
+   <div class="edge" style="left:550px;top:230px;width:75px;transform:rotate(36deg)"></div>
+   <div class="edge" style="left:830px;top:130px;width:75px;transform:rotate(36deg)"></div>
+   <div class="edge" style="left:830px;top:330px;width:75px;transform:rotate(-36deg)"></div>
+  </div>
+  
+  <div class="inspector">
+    <div class="section-title"><i data-lucide="sliders" size="14"></i> Properties</div>
+    <div id="inspector">
+      <div style="color:var(--text-muted);font-size:13px; text-align:center; padding: 40px 0;">
+        <i data-lucide="mouse-pointer-click" size="32" style="opacity:0.3; margin-bottom:12px;"></i><br>
+        Select a node to configure it.
+      </div>
+    </div>
+  </div>
+ </div>
+</section>
+
+<section id="knowledge" class="view">
+ <div class="head">
+    <div>
+      <div class="eyebrow"><i data-lucide="database" size="14"></i> Data / Knowledge</div>
+      <div class="title">Knowledge sources</div>
+      <div class="sub">Ground agents with trusted organizational context.</div>
+    </div>
+    <button class="btn primary" onclick="toast('Upload dialog opened')"><i data-lucide="upload-cloud"></i> Add source</button>
+  </div>
+ <div class="card" style="padding:0">
+  <table class="table">
+    <thead><tr><th>Source</th><th>Type</th><th>Documents</th><th>Status</th><th>Last sync</th></tr></thead>
+    <tbody>
+      <tr><td>Engineering Handbook</td><td><div style="display:flex;align-items:center;gap:6px"><i data-lucide="file-text" size="14"></i> PDF</div></td><td>184</td><td><span class="status live">Synced</span></td><td>4 min ago</td></tr>
+      <tr><td>Product Documentation</td><td><div style="display:flex;align-items:center;gap:6px"><i data-lucide="globe" size="14"></i> Website</div></td><td>1,204</td><td><span class="status live">Synced</span></td><td>18 min ago</td></tr>
+      <tr><td>Security Policies</td><td><div style="display:flex;align-items:center;gap:6px"><i data-lucide="file-text" size="14"></i> PDF</div></td><td>47</td><td><span class="status live">Synced</span></td><td>1 hr ago</td></tr>
+      <tr><td>Analytics Warehouse</td><td><div style="display:flex;align-items:center;gap:6px"><i data-lucide="database" size="14"></i> PostgreSQL</div></td><td>32 tables</td><td><span class="status live">Connected</span></td><td>Live</td></tr>
+    </tbody>
+  </table>
+ </div>
+</section>
+
+<section id="connectors" class="view">
+ <div class="head"><div><div class="eyebrow"><i data-lucide="plug-2" size="14"></i> Integrations</div><div class="title">Connectors</div><div class="sub">Give agents controlled access to your systems.</div></div></div>
+ <div class="grid cards3">
+  <div class="card agent"><div class="agent-top"><div class="agent-icon"><i data-lucide="github"></i></div></div><h3>GitHub</h3><p>Repositories, issues, pull requests and code search.</p><button class="btn" style="width:100%" onclick="connect(this,'GitHub')"><i data-lucide="check" size="16"></i> Connected</button></div>
+  <div class="card agent"><div class="agent-top"><div class="agent-icon"><i data-lucide="database"></i></div></div><h3>PostgreSQL</h3><p>Read-only analytics access with scoped credentials.</p><button class="btn" style="width:100%" onclick="connect(this,'PostgreSQL')"><i data-lucide="check" size="16"></i> Connected</button></div>
+  <div class="card agent"><div class="agent-top"><div class="agent-icon"><i data-lucide="message-circle"></i></div></div><h3>Slack</h3><p>Search channels and post approved messages.</p><button class="btn primary" style="width:100%" onclick="connect(this,'Slack')">Connect</button></div>
+  <div class="card agent"><div class="agent-top"><div class="agent-icon"><i data-lucide="folder"></i></div></div><h3>Google Drive</h3><p>Index selected folders and documents.</p><button class="btn primary" style="width:100%" onclick="connect(this,'Google Drive')">Connect</button></div>
+  <div class="card agent"><div class="agent-top"><div class="agent-icon"><i data-lucide="link"></i></div></div><h3>REST API</h3><p>Connect any internal or external API.</p><button class="btn primary" style="width:100%" onclick="connect(this,'REST API')">Configure</button></div>
+  <div class="card agent"><div class="agent-top"><div class="agent-icon"><i data-lucide="globe"></i></div></div><h3>Web Search</h3><p>Allow agents to retrieve current public information.</p><button class="btn" style="width:100%" onclick="connect(this,'Web Search')"><i data-lucide="check" size="16"></i> Enabled</button></div>
+ </div>
+</section>
+
+<section id="workflows" class="view">
+ <div class="head"><div><div class="eyebrow"><i data-lucide="zap" size="14"></i> Automation / Workflows</div><div class="title">Workflows</div><div class="sub">Turn agent graphs into repeatable business processes.</div></div><button class="btn primary" onclick="toast('New workflow created')"><i data-lucide="plus"></i> New workflow</button></div>
+ <div class="card" style="padding:0">
+  <table class="table">
+    <thead><tr><th>Workflow</th><th>Trigger</th><th>Agents</th><th>Runs</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td><div style="font-weight:500; color:var(--text-main)">Repository Security Audit</div></td><td><div class="pill" style="display:inline-flex; border-radius:4px; padding:2px 8px; font-size:11px"><i data-lucide="git-commit" size="12"></i> Git push</div></td><td>4</td><td>1,842</td><td><span class="status live">Active</span></td></tr>
+      <tr><td><div style="font-weight:500; color:var(--text-main)">Weekly Sales Brief</div></td><td><div class="pill" style="display:inline-flex; border-radius:4px; padding:2px 8px; font-size:11px"><i data-lucide="clock" size="12"></i> Monday 09:00</div></td><td>3</td><td>42</td><td><span class="status live">Active</span></td></tr>
+      <tr><td><div style="font-weight:500; color:var(--text-main)">Support Escalation</div></td><td><div class="pill" style="display:inline-flex; border-radius:4px; padding:2px 8px; font-size:11px"><i data-lucide="alert-triangle" size="12"></i> Ticket priority</div></td><td>2</td><td>893</td><td><span class="status draft">Draft</span></td></tr>
+    </tbody>
+  </table>
+ </div>
+</section>
+
+<section id="runs" class="view">
+ <div class="head"><div><div class="eyebrow"><i data-lucide="activity" size="14"></i> Observability / Runs</div><div class="title">Execution traces</div><div class="sub">Inspect every agent step, tool call and outcome.</div></div><button class="btn" onclick="toast('Run history refreshed')"><i data-lucide="refresh-cw"></i> Refresh</button></div>
+ <div class="grid layout2">
+  <div class="card" style="padding:0"><table class="table"><thead><tr><th>Task</th><th>Agent</th><th>Latency</th><th>Result</th></tr></thead><tbody><tr><td><a href="#" style="color:var(--accent-light); text-decoration:none">#19382</a></td><td>Code Auditor</td><td>14.8s</td><td><div class="status live" style="background:transparent; padding:0"><i data-lucide="check-circle" size="14"></i> Success</div></td></tr><tr><td><a href="#" style="color:var(--accent-light); text-decoration:none">#19381</a></td><td>Research Analyst</td><td>8.1s</td><td><div class="status live" style="background:transparent; padding:0"><i data-lucide="check-circle" size="14"></i> Success</div></td></tr><tr><td><a href="#" style="color:var(--accent-light); text-decoration:none">#19380</a></td><td>Data Analyst</td><td>22.4s</td><td><div class="status live" style="background:transparent; padding:0"><i data-lucide="check-circle" size="14"></i> Success</div></td></tr><tr><td><a href="#" style="color:var(--accent-light); text-decoration:none">#19379</a></td><td>Support Agent</td><td>3.7s</td><td><div class="status draft" style="background:transparent; color:var(--danger); padding:0"><i data-lucide="x-circle" size="14"></i> Failed</div></td></tr></tbody></table></div>
+  <div class="card">
+    <div class="section-title" style="margin-bottom:16px"><i data-lucide="terminal" size="14"></i> Selected run #19382</div>
+    <div class="log">
+      <div><span class="text-purple">00:01</span> <span>Planner Agent initialized.</span> <span class="text-green" style="margin-left:auto">✓ 124ms</span></div>
+      <div><span class="text-purple">00:03</span> <span>Calling <code>GitHub.search_code</code>...</span> <span class="text-green" style="margin-left:auto">✓ 890ms</span></div>
+      <div><span class="text-purple">00:06</span> <span>Security Agent running checks...</span> <span class="text-green" style="margin-left:auto">✓ 3.2s</span></div>
+      <div><span class="text-purple">00:09</span> <span>Architecture Agent reviewing patterns...</span> <span class="text-green" style="margin-left:auto">✓ 4.1s</span></div>
+      <div><span class="text-purple">00:12</span> <span>Report Agent synthesizing...</span> <span class="text-green" style="margin-left:auto">✓ 2.8s</span></div>
+      <div style="border-bottom:none"><span class="text-blue">FINAL</span> <span style="color:var(--text-main); font-weight:600">17 findings generated successfully.</span></div>
+    </div>
+  </div>
+ </div>
+</section>
+
+<section id="evals" class="view">
+ <div class="head"><div><div class="eyebrow"><i data-lucide="check-circle-2" size="14"></i> Quality / Evaluations</div><div class="title">Agent evaluations</div><div class="sub">Measure reliability before agents reach production.</div></div><button class="btn primary" onclick="toast('Evaluation suite started')"><i data-lucide="play"></i> Run suite</button></div>
+ <div class="grid stats"><div class="card"><div class="eyebrow">Task success</div><div class="stat-num">91.7%</div></div><div class="card"><div class="eyebrow">Tool success</div><div class="stat-num">98.1%</div></div><div class="card"><div class="eyebrow">Groundedness</div><div class="stat-num">95.4%</div></div><div class="card"><div class="eyebrow">Avg cost / run</div><div class="stat-num">$0.08</div></div></div>
+ <div class="card" style="margin-top:20px; padding:0">
+  <table class="table">
+    <thead><tr><th>Test case</th><th>Expected</th><th>Actual</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Revenue last quarter</td><td><code style="background:var(--bg-hover);padding:2px 6px;border-radius:4px">Structured revenue</code></td><td>Matched exactly</td><td><span class="status live">Passed</span></td></tr>
+      <tr><td>Detect exposed secret</td><td><code style="background:var(--bg-hover);padding:2px 6px;border-radius:4px">Critical finding</code></td><td>Detected (API key)</td><td><span class="status live">Passed</span></td></tr>
+      <tr><td>Unknown policy question</td><td><code style="background:var(--bg-hover);padding:2px 6px;border-radius:4px">Refuse / cite</code></td><td>Polite refusal</td><td><span class="status live">Passed</span></td></tr>
+    </tbody>
+  </table>
+ </div>
+</section>
+
+<section id="settings" class="view">
+ <div class="head"><div><div class="eyebrow"><i data-lucide="settings" size="14"></i> Workspace / Settings</div><div class="title">Platform settings</div><div class="sub">Configure models, security and workspace defaults.</div></div><button class="btn primary" onclick="toast('Settings saved')"><i data-lucide="save"></i> Save changes</button></div>
+ <div class="card form" style="max-width:760px">
+  <label>Default model</label><select><option>Claude 3.5 Sonnet</option><option>GPT-4o</option><option>Gemini 1.5 Pro</option><option>Local / Ollama</option></select>
+  <label>Workspace name</label><input value="ORBIT Workspace">
+  <label>System instructions</label><textarea>Agents must respect workspace permissions, cite knowledge sources when applicable, and request human approval for sensitive actions.</textarea>
+  <div class="toggle">
+    <div><b>Require approval for destructive actions</b><div style="font-size:11px;color:var(--text-muted);font-weight:400;margin-top:2px">e.g. database DROP, API POST</div></div> 
+    <div class="switch on" onclick="this.classList.toggle('on')"></div>
+  </div>
+  <div class="toggle">
+    <div><b>Allow external web access</b><div style="font-size:11px;color:var(--text-muted);font-weight:400;margin-top:2px">Agents can use search tools</div></div> 
+    <div class="switch on" onclick="this.classList.toggle('on')"></div>
+  </div>
+  <div class="toggle">
+    <div><b>Enable agent memory</b><div style="font-size:11px;color:var(--text-muted);font-weight:400;margin-top:2px">Persist context across sessions</div></div> 
+    <div class="switch" onclick="this.classList.toggle('on')"></div>
+  </div>
+ </div>
+</section>
+</main>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="modalbox">
+    <div class="head" style="margin-bottom:16px">
+      <div>
+        <div class="eyebrow" style="margin-bottom:2px">Agent Config</div>
+        <div class="title" id="modalTitle" style="font-size:20px">Agent</div>
+      </div>
+      <button class="btn" style="padding:6px" onclick="closeModal()"><i data-lucide="x"></i></button>
+    </div>
+    <div class="form">
+      <label>Instructions</label><textarea id="modalText">You are an enterprise agent. Complete tasks using approved tools and knowledge sources.</textarea>
+      <label>Model Engine</label><select><option>Claude 3.5 Sonnet</option><option>GPT-4o</option><option>Gemini 1.5 Pro</option></select>
+      <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px; padding-top:16px; border-top:1px solid var(--border-light)">
+        <button class="btn" onclick="closeModal()">Cancel</button>
+        <button class="btn primary" onclick="toast('Agent configuration saved');closeModal()">Save agent</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><i data-lucide="check-circle"></i> <span id="toastMsg"></span></div>
+
+<script>
+// Initialize Icons
+lucide.createIcons();
+
+// Navigation Logic
+const views = [...document.querySelectorAll('.view')];
+document.querySelectorAll('.nav').forEach(n => {
+  n.onclick = () => showView(n.dataset.view);
+});
+
+function showView(id) {
+ views.forEach(v => v.classList.toggle('active', v.id === id));
+ document.querySelectorAll('.nav').forEach(n => n.classList.toggle('active', n.dataset.view === id));
+}
+
+// UI Utilities
+function toast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window.tt);
+  window.tt = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function openAgent(name) {
+  document.getElementById('modalTitle').textContent = name;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+function filterAgents() {
+  const q = document.getElementById('agentSearch').value.toLowerCase();
+  document.querySelectorAll('.searchable').forEach(x => {
+    x.style.display = x.innerText.toLowerCase().includes(q) ? 'flex' : 'none';
+  });
+}
+
+function connect(btn, name) {
+  const isConnected = btn.textContent.includes('Connect');
+  btn.innerHTML = `<i data-lucide="check" size="16"></i> Connected`;
+  btn.classList.remove('primary');
+  lucide.createIcons();
+  toast(name + ' connector updated');
+}
+
+// Canvas & Builder logic
+function deployAgent() { toast('Deployment started — Agent is going live'); }
+function runBuilder() { toast('Test run started — executing sequence'); }
+
+function zoom(d) {
+  let z = parseInt(document.getElementById('zoom').textContent) + d * 10;
+  z = Math.max(50, Math.min(150, z));
+  document.getElementById('zoom').textContent = z + '%';
+  document.getElementById('canvas').style.transform = 'scale(' + z / 100 + ')';
+  document.getElementById('canvas').style.transformOrigin = 'top left';
+}
+
+function addNode(type, iconName) {
+ const c = document.getElementById('canvas');
+ const n = document.createElement('div');
+ n.className = 'node';
+ n.style.left = (80 + Math.random() * 400) + 'px';
+ n.style.top = (100 + Math.random() * 200) + 'px';
+ 
+ n.innerHTML = `
+    <span class="port in"></span><span class="port out"></span>
+    <div class="node-head"><i data-lucide="${iconName}"></i> ${type}</div>
+    <div class="node-body">New ${type} node. Click to configure.</div>
+ `;
+ 
+ n.onclick = () => selectNode(n, type, iconName);
+ c.appendChild(n);
+ lucide.createIcons();
+ toast(type + ' node added');
+}
+
+function selectNode(el, type, iconName) {
+  document.querySelectorAll('.node').forEach(n => n.classList.remove('selected'));
+  el.classList.add('selected');
+  
+  document.getElementById('inspector').innerHTML = `
+    <div class="form animation-fade-in">
+      <label>Node name</label><input value="${type}">
+      <label>Instructions</label><textarea>Configure how this node should reason and execute its task.</textarea>
+      <label>Model</label>
+      <select><option>Claude 3.5 Sonnet</option><option>GPT-4o</option></select>
+      
+      <div class="toggle" style="margin-top:24px">
+        <div><b>Use workspace knowledge</b></div> 
+        <div class="switch on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="toggle">
+        <div><b>Require approval</b></div> 
+        <div class="switch" onclick="this.classList.toggle('on')"></div>
+      </div>
+      
+      <button class="btn primary" style="width:100%;margin-top:24px" onclick="toast('Node configuration saved')">
+        <i data-lucide="save"></i> Save node
+      </button>
+    </div>
+  `;
+  lucide.createIcons();
+}
+
+function autoLayout() { toast('Canvas auto-layout applied'); }
+
+window.onclick = e => {
+  if(e.target === document.getElementById('modal')) closeModal();
+}
+</script>
+</body>
+</html>

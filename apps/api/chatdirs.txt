@@ -1,0 +1,3 @@
+fastapi=C:\Users\naras\AppData\Local\Temp\tmpfa1j8_ui\backend
+flask=C:\Users\naras\AppData\Local\Temp\tmpi0wyt3ig\backend
+django=C:\Users\naras\AppData\Local\Temp\tmp5lankwpr\backend
